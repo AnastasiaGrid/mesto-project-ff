@@ -21,6 +21,7 @@ function deleteCard(event) {
   const target = event.target.closest('.places__item')
   target.remove()
 }
+
 // @todo: Вывести карточки на страницу
 initialCards.forEach(function (item) {
   placesList.append(addCard(item,deleteCard))
