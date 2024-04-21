@@ -9,19 +9,10 @@ import {likeCard} from "./сomponents/card";
 // @todo: DOM узлы
 const cardsContainer = document.querySelector('.places__list');
 const buttonProfile = document.querySelector('.profile__edit-button')
-const buttonPopupClose = document.querySelectorAll('.popup__close')
+const buttonsPopupClose = document.querySelectorAll('.popup__close')
 const buttonAddCard = document.querySelector('.profile__add-button')
-
-const formElementEdit = document.forms['edit-profile']
-const nameInput = document.querySelector('.popup__input_type_name')
-const jobInput = document.querySelector('.popup__input_type_description')
 const profileTitle = document.querySelector('.profile__title')
 const profileDescription = document.querySelector('.profile__description')
-
-const formElementCards = document.forms['new-place']
-const placeInput = document.querySelector('.popup__input_type_card-name')
-const urlInput = document.querySelector('.popup__input_type_url')
-
 
 // @todo: Вывести карточки на страницу
 initialCards.forEach(function (cardItem) {
@@ -31,40 +22,42 @@ initialCards.forEach(function (cardItem) {
 // @todo: Открытие модальных окон
 buttonProfile.addEventListener('click', () => {
   const popupEdit = document.querySelector('.popup_type_edit')
+  const popupEditForm = popupEdit.querySelector('form')
+  popupEditForm.reset()
   openModal(popupEdit)
+  popupEditForm.addEventListener('submit', handleFormSubmit);
 })
 
 buttonAddCard.addEventListener('click', () => {
   const popupNewCard = document.querySelector('.popup_type_new-card')
+  const popupNewCardForm = popupNewCard.querySelector('form')
+  popupNewCardForm.reset()
   openModal(popupNewCard)
+  popupNewCardForm.addEventListener('submit', handleCardAdd);
 })
 
 // @todo: Закрытие модальных окон
-buttonPopupClose.forEach((item) => {
+buttonsPopupClose.forEach((item) => {
   item.addEventListener('click', closeModal)
 })
 
-// @todo:Редактирование имени и информации о себе
+// @todo:Редактирование и сохранение имени и информации о себе
 function handleFormSubmit(evt) {
   evt.preventDefault();
-  profileTitle.textContent = nameInput.value
-  profileDescription.textContent = jobInput.value
+  profileTitle.textContent = evt.target.name.value
+  profileDescription.textContent = evt.target.description.value
   closeModal()
 }
-formElementEdit.addEventListener('submit', handleFormSubmit);
 
 // @todo:Добавление новой карточки
 function handleCardAdd(evt) {
   evt.preventDefault();
   const newPlace = {}
-  newPlace.name = placeInput.value
-  newPlace.link = urlInput.value
+  newPlace.name = evt.target['place-name'].value
+  newPlace.link = evt.target.link.value
   cardsContainer.prepend(createCard(newPlace,deleteCard,likeCard,openPopupImage))
   closeModal()
 }
-
-formElementCards.addEventListener('submit', handleCardAdd);
-
 
 // @todo:Открытие попапа с картинкой
 function openPopupImage(imgSrc, caption) {
