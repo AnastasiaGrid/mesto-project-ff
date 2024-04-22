@@ -13,6 +13,12 @@ const buttonsPopupClose = document.querySelectorAll('.popup__close')
 const buttonAddCard = document.querySelector('.profile__add-button')
 const profileTitle = document.querySelector('.profile__title')
 const profileDescription = document.querySelector('.profile__description')
+const popupImage = document.querySelector('.popup__image')
+const popupCaption = document.querySelector('.popup__caption')
+const popupTypeImage = document.querySelector('.popup_type_image')
+
+const popupEditForm = document.forms['edit-profile']
+const popupNewCardForm = document.forms['new-place']
 
 // @todo: Вывести карточки на страницу
 initialCards.forEach(function (cardItem) {
@@ -22,18 +28,14 @@ initialCards.forEach(function (cardItem) {
 // @todo: Открытие модальных окон
 buttonProfile.addEventListener('click', () => {
   const popupEdit = document.querySelector('.popup_type_edit')
-  const popupEditForm = popupEdit.querySelector('form')
-  popupEditForm.reset()
+  popupEditForm.querySelector('.popup__input_type_name').value = profileTitle.textContent
+  popupEditForm.querySelector('.popup__input_type_description').value =  profileDescription.textContent
   openModal(popupEdit)
-  popupEditForm.addEventListener('submit', handleFormSubmit);
 })
 
 buttonAddCard.addEventListener('click', () => {
   const popupNewCard = document.querySelector('.popup_type_new-card')
-  const popupNewCardForm = popupNewCard.querySelector('form')
-  popupNewCardForm.reset()
   openModal(popupNewCard)
-  popupNewCardForm.addEventListener('submit', handleCardAdd);
 })
 
 // @todo: Закрытие модальных окон
@@ -48,6 +50,7 @@ function handleFormSubmit(evt) {
   profileDescription.textContent = evt.target.description.value
   closeModal()
 }
+popupEditForm.addEventListener('submit', handleFormSubmit);
 
 // @todo:Добавление новой карточки
 function handleCardAdd(evt) {
@@ -57,12 +60,14 @@ function handleCardAdd(evt) {
   newPlace.link = evt.target.link.value
   cardsContainer.prepend(createCard(newPlace,deleteCard,likeCard,openPopupImage))
   closeModal()
+  evt.target.reset()
 }
+popupNewCardForm.addEventListener('submit', handleCardAdd);
+
 
 // @todo:Открытие попапа с картинкой
 function openPopupImage(imgSrc, caption) {
-  const popupImage = document.querySelector('.popup__image')
-  const popupCaption = document.querySelector('.popup__caption')
+  openModal(popupTypeImage)
   popupImage.src = imgSrc
   popupCaption.textContent = caption
   popupImage.alt = caption

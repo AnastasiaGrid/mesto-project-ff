@@ -1,5 +1,3 @@
-import {openModal} from "../сomponents/modal";
-
 // @todo: Темплейт карточки
 const cardTemplate = document.querySelector('#card-template').content
 const cardElement = cardTemplate.querySelector('.places__item')
@@ -16,10 +14,7 @@ export function createCard(cardData, deleteCard, likeCard, openPopupImage) {
   const cardLikeButton = cloneCard.querySelector('.card__like-button')
   cardLikeButton.addEventListener('click', () => likeCard(cardLikeButton));
 
-  const popupTypeImage = document.querySelector('.popup_type_image')
-
   cardImage.addEventListener('click', () => {
-    openModal(popupTypeImage)
     openPopupImage(cardImage.src, cardData.name)
   })
 

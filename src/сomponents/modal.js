@@ -11,7 +11,7 @@ function stopPropagation(evt) {
 // @todo:Открытие модального окна
 export function openModal(popup) {
   popup.classList.add('popup_is-opened')
-  popup.addEventListener('click', closeModal)
+  popup.addEventListener('click', closeModal, [true])
   popup.querySelector('.popup__content').addEventListener('click',stopPropagation)
   window.addEventListener('keydown',keyHandler)
 }
