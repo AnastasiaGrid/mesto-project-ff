@@ -4,7 +4,7 @@ import {openModal} from "./сomponents/modal";
 import {closeModal} from "./сomponents/modal";
 import {createCard} from "./сomponents/card";
 import {deleteCard} from "./сomponents/card";
-import {likeCard} from "./сomponents/card";
+import {toggleLikeCard} from "./сomponents/card";
 
 // @todo: DOM узлы
 const cardsContainer = document.querySelector('.places__list');
@@ -16,25 +16,27 @@ const profileDescription = document.querySelector('.profile__description')
 const popupImage = document.querySelector('.popup__image')
 const popupCaption = document.querySelector('.popup__caption')
 const popupTypeImage = document.querySelector('.popup_type_image')
-
+const popupNewCard = document.querySelector('.popup_type_new-card')
+const popupEdit = document.querySelector('.popup_type_edit')
 const popupEditForm = document.forms['edit-profile']
 const popupNewCardForm = document.forms['new-place']
+const popupEditFormInputName = popupEditForm.querySelector('.popup__input_type_name')
+const popupEditFormInputDescription = popupEditForm.querySelector('.popup__input_type_description')
+
 
 // @todo: Вывести карточки на страницу
 initialCards.forEach(function (cardItem) {
-  cardsContainer.append(createCard(cardItem,deleteCard,likeCard,openPopupImage))
+  cardsContainer.append(createCard(cardItem,deleteCard,toggleLikeCard,openPopupImage))
 })
 
 // @todo: Открытие модальных окон
 buttonProfile.addEventListener('click', () => {
-  const popupEdit = document.querySelector('.popup_type_edit')
-  popupEditForm.querySelector('.popup__input_type_name').value = profileTitle.textContent
-  popupEditForm.querySelector('.popup__input_type_description').value =  profileDescription.textContent
+  popupEditFormInputName.value = profileTitle.textContent
+  popupEditFormInputDescription.value = profileDescription.textContent
   openModal(popupEdit)
 })
 
 buttonAddCard.addEventListener('click', () => {
-  const popupNewCard = document.querySelector('.popup_type_new-card')
   openModal(popupNewCard)
 })
 
@@ -44,26 +46,25 @@ buttonsPopupClose.forEach((item) => {
 })
 
 // @todo:Редактирование и сохранение имени и информации о себе
-function handleFormSubmit(evt) {
+function submitFormEditProfile(evt) {
   evt.preventDefault();
   profileTitle.textContent = evt.target.name.value
   profileDescription.textContent = evt.target.description.value
   closeModal()
 }
-popupEditForm.addEventListener('submit', handleFormSubmit);
+popupEditForm.addEventListener('submit', submitFormEditProfile);
 
 // @todo:Добавление новой карточки
-function handleCardAdd(evt) {
+function submitFormAddCard(evt) {
   evt.preventDefault();
   const newPlace = {}
   newPlace.name = evt.target['place-name'].value
   newPlace.link = evt.target.link.value
-  cardsContainer.prepend(createCard(newPlace,deleteCard,likeCard,openPopupImage))
+  cardsContainer.prepend(createCard(newPlace,deleteCard,toggleLikeCard,openPopupImage))
   closeModal()
   evt.target.reset()
 }
-popupNewCardForm.addEventListener('submit', handleCardAdd);
-
+popupNewCardForm.addEventListener('submit', submitFormAddCard);
 
 // @todo:Открытие попапа с картинкой
 function openPopupImage(imgSrc, caption) {
