@@ -7,4 +7,5 @@
 В рамках 7 спринта реализовано взаимодействие с сервером и валидация форм. 
 
 Ссылка на репозиторий: https://github.com/AnastasiaGrid/mesto-project-ff.git
+
 Ссылка на проект: https://anastasiagrid.github.io/mesto-project-ff/
