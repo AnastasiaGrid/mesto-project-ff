@@ -1,3 +1,5 @@
+import {clearValidation} from "./validation";
+
 function closeOnEscape(evt) {
    if (evt.key === 'Escape') {
       closeModal()
