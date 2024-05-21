@@ -31,6 +31,13 @@ const hideInputError = (formElement, inputElement, inputErrorClass, errorClass) 
   formError.textContent = ''
   formError.classList.remove(errorClass)
 }
+/**
+ *
+ * @param formElement object DOM-элемент формы
+ * @param inputElement object DOM-элемент инпут в форме
+ * @param inputErrorClass string класс инпута с ошибкой (красное подчеркивание)
+ * @param errorClass string класс span с ошибкой
+ */
 
 //На основании валидности вызывает кастомную ошибку
 const isValid = (formElement, inputElement, inputErrorClass, errorClass) => {
@@ -46,6 +53,15 @@ const isValid = (formElement, inputElement, inputErrorClass, errorClass) => {
     hideInputError(formElement, inputElement, inputErrorClass, errorClass)
   }
 }
+
+/**
+  * @param formSelector string класс нажатой формы
+ * @param inputSelector string класс инпута  в форме
+ * @param submitButtonSelector string класс кнопки сабмита (сохранить) в форме
+ * @param inactiveButtonClass string класс неактивной кнопки сабмита
+ * @param inputErrorClass string класс инпута с ошибкой (красное подчеркивание)
+ * @param errorClass string класс span с ошибкой
+ */
 
 //Валидация всей формы
 export function enableValidation({
