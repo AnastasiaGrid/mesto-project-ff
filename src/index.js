@@ -1,14 +1,9 @@
 import './pages/index.css';
 import {logPlugin} from "@babel/preset-env/lib/debug";
 import {postNewCard, getCards, getUserInfo, updateProfileInfo, updateProfileImg} from "./сomponents/api";
-import {openModal} from "./сomponents/modal";
-import {closeModal} from "./сomponents/modal";
-import {createCard} from "./сomponents/card";
-import {deleteCard} from "./сomponents/card";
-import {toggleLikeCard} from "./сomponents/card";
-import {enableValidation} from "./сomponents/validation";
-import {clearValidation} from "./сomponents/validation";
-
+import {openModal, closeModal} from "./сomponents/modal";
+import {createCard, deleteCard, toggleLikeCard} from "./сomponents/card";
+import {enableValidation, clearValidation} from "./сomponents/validation";
 
 // @todo: DOM узлы
 const cardsContainer = document.querySelector('.places__list');
@@ -22,16 +17,17 @@ const popupCaption = document.querySelector('.popup__caption')
 const popupTypeImage = document.querySelector('.popup_type_image')
 const popupNewCard = document.querySelector('.popup_type_new-card')
 const popupEdit = document.querySelector('.popup_type_edit')
-const popupEditForm = document.forms['edit-profile']
-const popupNewCardForm = document.forms['new-place']
-const popupEditFormInputName = popupEditForm.querySelector('.popup__input_type_name')
-const popupEditFormInputDescription = popupEditForm.querySelector('.popup__input_type_description')
 const profileImage = document.querySelector('.profile__image')
 const popupEditImage = document.querySelector('.popup_type_edit_profile_image')
+
+const popupEditForm = document.forms['edit-profile']
+const popupEditFormInputName = popupEditForm.querySelector('.popup__input_type_name')
+const popupEditFormInputDescription = popupEditForm.querySelector('.popup__input_type_description')
+const popupNewCardForm = document.forms['new-place']
 const popupEditProfileImageForm = document.forms['edit-profile-image']
 const popupEditFormProfileImage = popupEditProfileImageForm.querySelector('.popup__input_type_url')
 
-//Обработка полученных данных с сервера
+//Обработка полученных данных с сервера(получение карточек и информации о пользователе)
 const arrayResponse = [getUserInfo(), getCards()]
 Promise.all(arrayResponse)
 .then((responses) => {
@@ -51,14 +47,12 @@ function setProfileInfo(arrayProfileInfo, profileTitle, profileDescription, prof
 
 //Выводятся карточки на страницу из сервера
 function addCards(arrayCards,userInfo) {
-  arrayCards.forEach((item) => {
-    cardsContainer.append(createCard(item,deleteCard,toggleLikeCard,openPopupImage, userInfo['_id']))
+  arrayCards.forEach((card) => {
+    cardsContainer.append(createCard(card,deleteCard,toggleLikeCard,openPopupImage, userInfo['_id']))
     })
 }
 
-
-
-// @todo: Открытие модальных окон
+//Открытие попапа ИЗМЕНЕНИЕ ПРОФИЛЯ (в т.ч. валидация)
 buttonProfile.addEventListener('click', () => {
   popupEditFormInputName.value = profileTitle.textContent
   popupEditFormInputDescription.value = profileDescription.textContent
@@ -71,11 +65,34 @@ buttonProfile.addEventListener('click', () => {
     inputErrorClass: 'popup__input_type_error',
     errorClass: 'popup__error_visible'
   }
-  // clear form previous init
   clearValidation(validationConfig)
   enableValidation(validationConfig);
 })
 
+//Редактирование и сохранение имени и информации о себе
+function submitFormEditProfile(evt) {
+  console.log(evt)
+  evt.preventDefault();
+  const popupSaveButton = popupEditForm.querySelector('.popup__button')
+  renderLoading(true, popupSaveButton)
+  const targetNameValue = evt.target.name.value;
+  const targetDescriptionValue = evt.target.description.value;
+  updateProfileInfo(targetNameValue, targetDescriptionValue)
+  .then((res) => {
+    profileTitle.textContent = targetNameValue
+    profileDescription.textContent = targetDescriptionValue
+    closeModal()
+  })
+  .catch(error => alert(error))
+  .finally(() => {
+    renderLoading(false, popupSaveButton)
+  })
+}
+
+popupEditForm.addEventListener('submit', submitFormEditProfile);
+
+
+//Открытие попап добавления НОВОЙ КАРТОЧКИ (в т.ч. валидация)
 buttonAddCard.addEventListener('click', () => {
   openModal(popupNewCard)
   const validationConfig = {
@@ -90,31 +107,7 @@ buttonAddCard.addEventListener('click', () => {
   enableValidation(validationConfig);
 })
 
-// @todo: Закрытие модальных окон
-buttonsPopupClose.forEach((item) => {
-  item.addEventListener('click', closeModal)
-})
-
-// @todo:Редактирование и сохранение имени и информации о себе
-function submitFormEditProfile(evt) {
-  evt.preventDefault();
-  const popupSaveButton = popupEditForm.querySelector('.popup__button')
-  renderLoading(true, popupSaveButton)
-  updateProfileInfo(evt.target.name.value, evt.target.description.value)
-  .then((res) => {
-    profileTitle.textContent = evt.target.name.value
-    profileDescription.textContent = evt.target.description.value
-    closeModal()
-  })
-  .catch(error => alert(error))
-  .finally(() => {
-    renderLoading(false, popupSaveButton)
-  })
-}
-
-popupEditForm.addEventListener('submit', submitFormEditProfile);
-
-// @todo:Добавление новой карточки
+// Добавление новой карточки
 async function submitFormAddCard(evt) {
   evt.preventDefault();
   const popupSaveButton = popupNewCardForm.querySelector('.popup__button')
@@ -127,21 +120,14 @@ async function submitFormAddCard(evt) {
     closeModal()
     evt.target.reset()
   } catch(err) {
-      alert(err)
-    }
+    alert(err)
+  }
   renderLoading(false, popupSaveButton)
 }
 popupNewCardForm.addEventListener('submit', submitFormAddCard);
 
-// @todo:Открытие попапа с картинкой
-function openPopupImage(imgSrc, caption) {
-  openModal(popupTypeImage)
-  popupImage.src = imgSrc
-  popupCaption.textContent = caption
-  popupImage.alt = caption
-}
 
-// Вешаем на аватарку открытие формы
+// Вешаем на аватарку открытие формы ИЗМЕНЕНИЕ АВАТАРКИ
 profileImage.addEventListener('click', () => {
   openModal(popupEditImage)
   const validationConfig = {
@@ -163,6 +149,7 @@ function submitProfileImage(evt) {
   renderLoading(true, popupSaveButton)
   const profileImageURL = evt.target['link-input-avatar'].value
   updateProfileImg(profileImageURL)
+  .catch(error => alert(error))
   .finally((res) => {
     renderLoading(false, popupSaveButton)
   })
@@ -172,6 +159,18 @@ function submitProfileImage(evt) {
 
 popupEditProfileImageForm.addEventListener('submit', submitProfileImage);
 
+//Открытие попапа с картинкой
+function openPopupImage(imgSrc, caption) {
+  openModal(popupTypeImage)
+  popupImage.src = imgSrc
+  popupCaption.textContent = caption
+  popupImage.alt = caption
+}
+
+//Закрытие модальных окон
+buttonsPopupClose.forEach((buttonClose) => {
+  buttonClose.addEventListener('click', closeModal)
+})
 
 //Loader
 function renderLoading(isLoading, popupSaveButton) {

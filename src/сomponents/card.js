@@ -8,11 +8,11 @@ const cardElement = cardTemplate.querySelector('.places__item')
 export function createCard(cardData, deleteCard, toggleLikeCard, openPopupImage, userInfoId) {
   const cloneCard = cardElement.cloneNode(true);
   cloneCard.querySelector('.card__title').textContent = cardData.name;
-
   const cardImage = cloneCard.querySelector('.card__image')
   cardImage.src = cardData.link;
   cardImage.alt = cardData.name;
 
+  //Счетчик лайков
   const likesScore = cloneCard.querySelector('.card__like-score')
   likesScore.textContent = cardData.likes.length
 
@@ -25,12 +25,13 @@ export function createCard(cardData, deleteCard, toggleLikeCard, openPopupImage,
     cardLikeButton.classList.add('card__like-button_is-active')
   }
 
+  // Открытие попапа с картинкой
   cardImage.addEventListener('click', () => {
     openPopupImage(cardImage.src, cardData.name)
   })
 
+  // Реализация появление корзинки только у моей карточки
   const deleteButtonCard = cloneCard.querySelector('.card__delete-button');
-
   if (cardData['owner']['_id'] === userInfoId) {
     deleteButtonCard.classList.remove('card__like-button-invisible')
     deleteButtonCard.addEventListener('click', () => deleteCard(cloneCard, cardData['_id']));

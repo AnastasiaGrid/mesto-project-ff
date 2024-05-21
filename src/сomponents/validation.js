@@ -32,14 +32,14 @@ const hideInputError = (formElement, inputElement, inputErrorClass, errorClass) 
   formError.classList.remove(errorClass)
 }
 
-//На основании валидности вызывает функция ошибки
+//На основании валидности вызывает кастомную ошибку
 const isValid = (formElement, inputElement, inputErrorClass, errorClass) => {
   if (inputElement.validity.patternMismatch) {
     inputElement.setCustomValidity(inputElement.dataset.errorMessage);
   } else {
     inputElement.setCustomValidity("");
   }
-
+//На основании валидности вызывает функции открытия и закрытия
   if (!inputElement.validity.valid) {
     showInputError(formElement, inputElement, inputElement.validationMessage, inputErrorClass, errorClass)
   } else {
@@ -47,34 +47,32 @@ const isValid = (formElement, inputElement, inputErrorClass, errorClass) => {
   }
 }
 
-
+//Валидация всей формы
 export function enableValidation({
   formSelector, inputSelector, submitButtonSelector,inactiveButtonClass, inputErrorClass, errorClass}) {
   const formElement = document.querySelector(formSelector);
   const buttonElement = formElement.querySelector(submitButtonSelector)
   const inputList = Array.from(formElement.querySelectorAll(inputSelector));
 
-  //Для каждого инпута включает валидацию
+  //Для каждого инпута включает валидацию и выключает кнопку
   const setEventListeners = (formElement) => {
     toggleButtonState(inputList, buttonElement, inactiveButtonClass);
-    inputList.forEach((item) => {
-      item.addEventListener('input', () => {
-        isValid(formElement, item, inputErrorClass, errorClass)
+    inputList.forEach((input) => {
+      input.addEventListener('input', () => {
+        isValid(formElement, input, inputErrorClass, errorClass)
         toggleButtonState(inputList, buttonElement, inactiveButtonClass);
       })
     })
   }
   setEventListeners(formElement)
-
 }
 
+//Скрывает ошибки, которые остаются после закрытие попапа с ошибкой
 export function clearValidation({formSelector, inputSelector, inputErrorClass, errorClass}) {
-  const formElement = document.querySelector(formSelector); // form
+  const formElement = document.querySelector(formSelector);
   const inputList = Array.from(formElement.querySelectorAll(inputSelector));
-
-  inputList.forEach((item) => {
-    hideInputError(formElement, item, inputErrorClass, errorClass)
-    isValid(formElement, item, inputErrorClass, errorClass)
+  inputList.forEach((input) => {
+    hideInputError(formElement, input, inputErrorClass, errorClass)
+    isValid(formElement, input, inputErrorClass, errorClass)
   })
-
 }
