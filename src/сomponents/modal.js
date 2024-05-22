@@ -1,29 +1,39 @@
-import {clearValidation} from "./validation";
-
 function closeOnEscape(evt) {
-   if (evt.key === 'Escape') {
-      closeModal()
-  }
+    if (evt.key === 'Escape') {
+      const popupOpen = document.querySelector('.popup_is-opened')
+      if (popupOpen) {
+        closeModal(popupOpen)
+      }
+    }
 }
 
 function stopPropagation(evt) {
   evt.stopPropagation()
 }
 
-// @todo:Открытие модального окна
+function closeByEventTarget(evt) {
+  closeModal(evt.target.closest('.popup'))
+}
+
+// Открытие модального окна
 export function openModal(popup) {
   popup.classList.add('popup_is-opened')
-  popup.addEventListener('click', closeModal, [true])
+  popup.addEventListener('click',closeByEventTarget)
   popup.querySelector('.popup__content').addEventListener('click',stopPropagation)
+  popup.querySelector('.popup__close').addEventListener('click', closeByEventTarget)
   window.addEventListener('keydown',closeOnEscape)
 }
 
-// @todo:Закрытие модального окна
-export function closeModal() {
-  const popupOpen = document.querySelector('.popup_is-opened')
-  popupOpen.classList.remove('popup_is-opened')
+// Закрытие модального окна
+export function closeModal(popup) {
+  const popupContent = popup.querySelector('.popup__content')
+  popup.classList.remove('popup_is-opened')
+
+  popupContent.removeEventListener('click',stopPropagation)
+  popup.removeEventListener('click',closeByEventTarget)
+  popup.querySelector('.popup__close').removeEventListener('click',closeByEventTarget)
   window.removeEventListener('keydown',closeOnEscape)
- }
+}
 
 
 

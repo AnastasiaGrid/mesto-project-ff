@@ -8,10 +8,10 @@ const hasInvalidInput = (inputList) => {
 //Включает/выключает кнопку в зависимость от того, есть ли невалидное поле
 const toggleButtonState = (inputList, buttonElement, inactiveButtonClass) => {
   if (hasInvalidInput(inputList)) {
-    buttonElement.setAttribute('disable', 'true')
+    buttonElement.setAttribute('disabled', '')
     buttonElement.classList.add(inactiveButtonClass)
   }else {
-    buttonElement.setAttribute('disable', 'false')
+    buttonElement.removeAttribute('disabled')
     buttonElement.classList.remove(inactiveButtonClass)
   }
 }
@@ -30,6 +30,7 @@ const hideInputError = (formElement, inputElement, inputErrorClass, errorClass) 
   inputElement.classList.remove(inputErrorClass)
   formError.textContent = ''
   formError.classList.remove(errorClass)
+  inputElement.required = false
 }
 /**
  *
@@ -52,7 +53,7 @@ const isValid = (formElement, inputElement, inputErrorClass, errorClass) => {
   } else {
     hideInputError(formElement, inputElement, inputErrorClass, errorClass)
   }
-}
+ }
 
 /**
   * @param formSelector string класс нажатой формы
@@ -66,29 +67,33 @@ const isValid = (formElement, inputElement, inputErrorClass, errorClass) => {
 //Валидация всей формы
 export function enableValidation({
   formSelector, inputSelector, submitButtonSelector,inactiveButtonClass, inputErrorClass, errorClass}) {
-  const formElement = document.querySelector(formSelector);
-  const buttonElement = formElement.querySelector(submitButtonSelector)
-  const inputList = Array.from(formElement.querySelectorAll(inputSelector));
+  const formElementsList = Array.from(document.querySelectorAll(formSelector));
+   formElementsList.forEach((formElement) => {
+    const buttonElement = formElement.querySelector(submitButtonSelector)
+    const inputList = Array.from(formElement.querySelectorAll(inputSelector));
 
-  //Для каждого инпута включает валидацию и выключает кнопку
-  const setEventListeners = (formElement) => {
-    toggleButtonState(inputList, buttonElement, inactiveButtonClass);
-    inputList.forEach((input) => {
-      input.addEventListener('input', () => {
-        isValid(formElement, input, inputErrorClass, errorClass)
-        toggleButtonState(inputList, buttonElement, inactiveButtonClass);
+    //Для каждого инпута включает валидацию и выключает кнопку
+    const setEventListeners = (formElement) => {
+      toggleButtonState(inputList, buttonElement, inactiveButtonClass);
+      inputList.forEach((input) => {
+        input.addEventListener('input', () => {
+          isValid(formElement, input, inputErrorClass, errorClass)
+          toggleButtonState(inputList, buttonElement, inactiveButtonClass);
+          input.required = true
+        })
       })
-    })
-  }
-  setEventListeners(formElement)
+    }
+    setEventListeners(formElement)
+  })
+
 }
 
 //Скрывает ошибки, которые остаются после закрытие попапа с ошибкой
-export function clearValidation({formSelector, inputSelector, inputErrorClass, errorClass}) {
-  const formElement = document.querySelector(formSelector);
-  const inputList = Array.from(formElement.querySelectorAll(inputSelector));
+export function clearValidation(profileForm, {inputSelector, inputErrorClass, errorClass}) {
+  const inputList = Array.from(profileForm.querySelectorAll(inputSelector));
   inputList.forEach((input) => {
-    hideInputError(formElement, input, inputErrorClass, errorClass)
-    isValid(formElement, input, inputErrorClass, errorClass)
+    hideInputError(profileForm, input, inputErrorClass, errorClass)
+    isValid(profileForm, input, inputErrorClass, errorClass)
+    input.required = false
   })
 }

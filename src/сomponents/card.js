@@ -1,3 +1,4 @@
+import {logPlugin} from "@babel/preset-env/lib/debug";
 import {deleteUserCard, putLikeCard, deleteLikeCard} from "./api";
 
 //Темплейт карточки
@@ -13,13 +14,21 @@ const cardElement = cardTemplate.querySelector('.places__item')
  * @param userInfoId string id пользователя
  */
 
+//Клонирование шаблона карточки
+function getCardTemplate(cardData) {
+   const cloneCard = cardElement.cloneNode(true);
+   return cloneCard
+}
+
+
 // Функция создания карточки
 export function createCard(cardData, deleteCard, toggleLikeCard, openPopupImage, userInfoId) {
-  const cloneCard = cardElement.cloneNode(true);
+ const cloneCard = getCardTemplate(cardData)
   cloneCard.querySelector('.card__title').textContent = cardData.name;
   const cardImage = cloneCard.querySelector('.card__image')
   cardImage.src = cardData.link;
   cardImage.alt = cardData.name;
+
   //Счетчик лайков
   const likesScore = cloneCard.querySelector('.card__like-score')
   likesScore.textContent = cardData.likes.length
@@ -47,6 +56,11 @@ export function createCard(cardData, deleteCard, toggleLikeCard, openPopupImage,
 export function deleteCard(card, cardUserId) {
   card.remove()
   deleteUserCard(cardUserId)
+  .then(() => {
+    card.remove()
+  })
+  .catch(err => console.log(err))
+
 }
 
 // Лайк
@@ -57,12 +71,14 @@ export function toggleLikeCard(cardLikeButton, cardData, likesScore) {
       likesScore.textContent = responsePutLike.likes.length
       cardLikeButton.classList.add('card__like-button_is-active')
     })
+    .catch(err => console.log(err))
   } else {
       const responseDeleteLikes = deleteLikeCard(cardData['_id'])
       .then((responsePutLike) => {
         likesScore.textContent = responsePutLike.likes.length
         cardLikeButton.classList.remove('card__like-button_is-active')
       })
+      .catch(err => console.log(err))
   }
 }
 

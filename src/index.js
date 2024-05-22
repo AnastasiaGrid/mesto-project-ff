@@ -3,12 +3,13 @@ import {logPlugin} from "@babel/preset-env/lib/debug";
 import {postNewCard, getCards, getUserInfo, updateProfileInfo, updateProfileImg} from "./сomponents/api";
 import {openModal, closeModal} from "./сomponents/modal";
 import {createCard, deleteCard, toggleLikeCard} from "./сomponents/card";
+import {renderLoading} from "./сomponents/utils";
 import {enableValidation, clearValidation} from "./сomponents/validation";
+
 
 // @todo: DOM узлы
 const cardsContainer = document.querySelector('.places__list');
 const buttonProfile = document.querySelector('.profile__edit-button')
-const buttonsPopupClose = document.querySelectorAll('.popup__close')
 const buttonAddCard = document.querySelector('.profile__add-button')
 const profileTitle = document.querySelector('.profile__title')
 const profileDescription = document.querySelector('.profile__description')
@@ -25,17 +26,26 @@ const popupEditFormInputName = popupEditForm.querySelector('.popup__input_type_n
 const popupEditFormInputDescription = popupEditForm.querySelector('.popup__input_type_description')
 const popupNewCardForm = document.forms['new-place']
 const popupEditProfileImageForm = document.forms['edit-profile-image']
-const popupEditFormProfileImage = popupEditProfileImageForm.querySelector('.popup__input_type_url')
+
+const validationConfig = {
+  formSelector: '.popup__form',
+  inputSelector: '.popup__input',
+  submitButtonSelector: '.popup__button',
+  inactiveButtonClass: 'popup__button_disabled',
+  inputErrorClass: 'popup__input_type_error',
+  errorClass: 'popup__error_visible'
+}
+enableValidation(validationConfig);
 
 //Обработка полученных данных с сервера(получение карточек и информации о пользователе)
-const arrayResponse = [getUserInfo(), getCards()]
-Promise.all(arrayResponse)
+const initialPromises = [getUserInfo(), getCards()]
+Promise.all(initialPromises)
 .then((responses) => {
   const [userInfo, cards] = responses
   setProfileInfo(userInfo, profileTitle, profileDescription, profileImage)
   addCards(cards,userInfo)
 })
-.catch(error => alert(error))
+.catch(error => console.log(error))
 
 
 //Достаем данные из сервера и заполняем профиль
@@ -56,22 +66,12 @@ function addCards(arrayCards,userInfo) {
 buttonProfile.addEventListener('click', () => {
   popupEditFormInputName.value = profileTitle.textContent
   popupEditFormInputDescription.value = profileDescription.textContent
+  clearValidation(popupEdit, validationConfig)
   openModal(popupEdit)
-  const validationConfig = {
-    formSelector: '.popup_type_edit',
-    inputSelector: '.popup__input',
-    submitButtonSelector: '.popup__button',
-    inactiveButtonClass: 'popup__button_disabled',
-    inputErrorClass: 'popup__input_type_error',
-    errorClass: 'popup__error_visible'
-  }
-  clearValidation(validationConfig)
-  enableValidation(validationConfig);
 })
 
 //Редактирование и сохранение имени и информации о себе
 function submitFormEditProfile(evt) {
-  console.log(evt)
   evt.preventDefault();
   const popupSaveButton = popupEditForm.querySelector('.popup__button')
   renderLoading(true, popupSaveButton)
@@ -81,9 +81,9 @@ function submitFormEditProfile(evt) {
   .then((res) => {
     profileTitle.textContent = targetNameValue
     profileDescription.textContent = targetDescriptionValue
-    closeModal()
+    closeModal(popupEdit)
   })
-  .catch(error => alert(error))
+  .catch(error => console.log(error))
   .finally(() => {
     renderLoading(false, popupSaveButton)
   })
@@ -94,52 +94,36 @@ popupEditForm.addEventListener('submit', submitFormEditProfile);
 
 //Открытие попап добавления НОВОЙ КАРТОЧКИ (в т.ч. валидация)
 buttonAddCard.addEventListener('click', () => {
+  clearValidation(popupNewCard, validationConfig)
   openModal(popupNewCard)
-  const validationConfig = {
-    formSelector: '.popup_type_new-card',
-    inputSelector: '.popup__input',
-    submitButtonSelector: '.popup__button',
-    inactiveButtonClass: 'popup__button_disabled',
-    inputErrorClass: 'popup__input_type_error',
-    errorClass: 'popup__error_visible'
-  }
-  clearValidation(validationConfig)
-  enableValidation(validationConfig);
 })
 
 // Добавление новой карточки
-async function submitFormAddCard(evt) {
+function submitFormAddCard(evt) {
   evt.preventDefault();
   const popupSaveButton = popupNewCardForm.querySelector('.popup__button')
   renderLoading(true, popupSaveButton)
   const nameTargetValue = evt.target['place-name'].value;
   const linkTargetValue = evt.target.link.value
-  try {
-    const responseCardData = await postNewCard(nameTargetValue, linkTargetValue)
+
+ postNewCard(nameTargetValue, linkTargetValue)
+  .then((responseCardData) => {
     cardsContainer.prepend(createCard(responseCardData,deleteCard,toggleLikeCard,openPopupImage, responseCardData['owner']['_id']))
-    closeModal()
+    closeModal(popupNewCard)
     evt.target.reset()
-  } catch(err) {
-    alert(err)
-  }
-  renderLoading(false, popupSaveButton)
+  })
+ .catch(error => console.log(error))
+  .finally(() => {
+    renderLoading(false, popupSaveButton)
+  })
 }
 popupNewCardForm.addEventListener('submit', submitFormAddCard);
 
 
 // Вешаем на аватарку открытие формы ИЗМЕНЕНИЕ АВАТАРКИ
 profileImage.addEventListener('click', () => {
+  clearValidation(popupEditImage, validationConfig)
   openModal(popupEditImage)
-  const validationConfig = {
-    formSelector: '.popup_type_edit_profile_image',
-    inputSelector: '.popup__input',
-    submitButtonSelector: '.popup__button',
-    inactiveButtonClass: 'popup__button_disabled',
-    inputErrorClass: 'popup__input_type_error',
-    errorClass: 'popup__error_visible'
-  }
-  clearValidation(validationConfig)
-  enableValidation(validationConfig);
 })
 
 // Отправка формы изменения аватарки
@@ -149,12 +133,15 @@ function submitProfileImage(evt) {
   renderLoading(true, popupSaveButton)
   const profileImageURL = evt.target['link-input-avatar'].value
   updateProfileImg(profileImageURL)
-  .catch(error => alert(error))
+  .then(() => {
+    profileImage.setAttribute('style', `background-image: url(${profileImageURL})`)
+    closeModal(popupEditImage)
+    evt.target.reset()
+  })
+  .catch(error => console.log(error))
   .finally((res) => {
     renderLoading(false, popupSaveButton)
   })
-  profileImage.setAttribute('style', `background-image: url(${profileImageURL})`)
-  closeModal()
 }
 
 popupEditProfileImageForm.addEventListener('submit', submitProfileImage);
@@ -165,19 +152,4 @@ function openPopupImage(imgSrc, caption) {
   popupImage.src = imgSrc
   popupCaption.textContent = caption
   popupImage.alt = caption
-}
-
-//Закрытие модальных окон
-buttonsPopupClose.forEach((buttonClose) => {
-  buttonClose.addEventListener('click', closeModal)
-})
-
-//Loader
-function renderLoading(isLoading, popupSaveButton) {
-  if (isLoading) {
-    popupSaveButton.textContent = 'Сохранение...'
-  } else {
-    popupSaveButton.textContent = 'Сохранить'
-  }
-
 }

@@ -1,8 +1,15 @@
 //f998f894-a8a5-4ddf-a7a6-04867caba2b7 — так выглядит токен
 // wff-cohort-13 — а так — идентификатор группы
-import {logPlugin} from "@babel/preset-env/lib/debug";
 const AUTHORIZATION = 'f998f894-a8a5-4ddf-a7a6-04867caba2b7'
 const URL = 'https://nomoreparties.co/v1/wff-cohort-13'
+
+function checkResponse(res) {
+  if (res.ok) {
+    return res.json();
+  }
+  return Promise.reject(`Ошибка: ${res.status}`);
+}
+
 
 export function getUserInfo() {
   return fetch(`${URL}/users/me`, {
@@ -12,10 +19,7 @@ export function getUserInfo() {
     }
   })
   .then(res => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
+      return checkResponse(res)
   });
 }
 
@@ -27,10 +31,7 @@ export function getCards() {
     }
   })
   .then(res => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
+    return checkResponse(res)
   });
 }
 
@@ -47,10 +48,7 @@ export function updateProfileInfo(name,about) {
     })
   })
   .then(res => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
+    return checkResponse(res)
   });
 }
 
@@ -67,10 +65,7 @@ export function postNewCard(name, link) {
     })
   })
   .then(res => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
+    return checkResponse(res)
   });
 }
 
@@ -82,10 +77,7 @@ export function deleteUserCard(cardUserId) {
     },
   })
   .then(res => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
+    return checkResponse(res)
   });
 }
 
@@ -97,10 +89,7 @@ export function putLikeCard(cardUserId) {
     },
   })
   .then(res => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
+    return checkResponse(res)
   });
 }
 
@@ -112,10 +101,7 @@ export function deleteLikeCard(cardUserId) {
     },
   })
   .then(res => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
+    return checkResponse(res)
   });
 }
 
@@ -131,10 +117,7 @@ export function updateProfileImg(profileImageURL) {
     })
   })
   .then(res => {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка: ${res.status}`);
+    return checkResponse(res)
   });
 }
 
