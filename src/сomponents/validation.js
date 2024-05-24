@@ -5,15 +5,20 @@ const hasInvalidInput = (inputList) => {
   })
 }
 
+//Включает/выключает кнопку
+ function setButtonDisabled(buttonElement, inactiveButtonClass, statusDisabled) {
+   if(statusDisabled) {
+     buttonElement.classList.add(inactiveButtonClass)
+     buttonElement.setAttribute('disabled', statusDisabled)
+   } else {
+     buttonElement.removeAttribute('disabled')
+     buttonElement.classList.remove(inactiveButtonClass)
+   }
+}
+
 //Включает/выключает кнопку в зависимость от того, есть ли невалидное поле
 const toggleButtonState = (inputList, buttonElement, inactiveButtonClass) => {
-  if (hasInvalidInput(inputList)) {
-    buttonElement.setAttribute('disabled', '')
-    buttonElement.classList.add(inactiveButtonClass)
-  }else {
-    buttonElement.removeAttribute('disabled')
-    buttonElement.classList.remove(inactiveButtonClass)
-  }
+  setButtonDisabled(buttonElement, inactiveButtonClass, hasInvalidInput(inputList))
 }
 
 //Показывает ошибку
@@ -30,7 +35,6 @@ const hideInputError = (formElement, inputElement, inputErrorClass, errorClass) 
   inputElement.classList.remove(inputErrorClass)
   formError.textContent = ''
   formError.classList.remove(errorClass)
-  inputElement.required = false
 }
 /**
  *
@@ -79,21 +83,20 @@ export function enableValidation({
         input.addEventListener('input', () => {
           isValid(formElement, input, inputErrorClass, errorClass)
           toggleButtonState(inputList, buttonElement, inactiveButtonClass);
-          input.required = true
         })
       })
     }
-    setEventListeners(formElement)
+     setEventListeners(formElement)
   })
-
 }
 
 //Скрывает ошибки, которые остаются после закрытие попапа с ошибкой
-export function clearValidation(profileForm, {inputSelector, inputErrorClass, errorClass}) {
+export function clearValidation(profileForm, {inputSelector,  submitButtonSelector, inactiveButtonClass, inputErrorClass, errorClass}) {
   const inputList = Array.from(profileForm.querySelectorAll(inputSelector));
   inputList.forEach((input) => {
     hideInputError(profileForm, input, inputErrorClass, errorClass)
-    isValid(profileForm, input, inputErrorClass, errorClass)
-    input.required = false
   })
+  const buttonElement = profileForm.querySelector(submitButtonSelector)
+  setButtonDisabled(buttonElement, inactiveButtonClass, true)
+  profileForm.querySelector('form').reset()
 }

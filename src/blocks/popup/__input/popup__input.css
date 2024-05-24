@@ -21,7 +21,7 @@
   }
 }
 
-.popup__input:invalid {
+.popup__input_type_error {
   border-bottom: 1px solid red;
 }
 

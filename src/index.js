@@ -64,9 +64,9 @@ function addCards(arrayCards,userInfo) {
 
 //Открытие попапа ИЗМЕНЕНИЕ ПРОФИЛЯ (в т.ч. валидация)
 buttonProfile.addEventListener('click', () => {
+  clearValidation(popupEdit, validationConfig)
   popupEditFormInputName.value = profileTitle.textContent
   popupEditFormInputDescription.value = profileDescription.textContent
-  clearValidation(popupEdit, validationConfig)
   openModal(popupEdit)
 })
 

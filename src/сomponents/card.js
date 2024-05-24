@@ -20,7 +20,6 @@ function getCardTemplate(cardData) {
    return cloneCard
 }
 
-
 // Функция создания карточки
 export function createCard(cardData, deleteCard, toggleLikeCard, openPopupImage, userInfoId) {
  const cloneCard = getCardTemplate(cardData)
